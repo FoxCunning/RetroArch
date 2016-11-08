@@ -215,6 +215,7 @@ void scaler_argb8888_horiz(const struct scaler_ctx *ctx, const void *input_, int
    }
 }
 
+#ifndef __ARM_NEON
 void scaler_argb8888_point_special(const struct scaler_ctx *ctx,
       void *output_, const void *input_,
       int out_width, int out_height,
@@ -243,4 +244,5 @@ void scaler_argb8888_point_special(const struct scaler_ctx *ctx,
          output[w] = inp[x >> 16];
    }
 }
+#endif
 

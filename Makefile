@@ -140,6 +140,8 @@ retroarch: $(RARCH_OBJ)
 	@$(if $(Q), $(shell echo echo LD $@),)
 	$(Q)$(LINK) -o $@ $(RARCH_OBJ) $(LIBS) $(LDFLAGS) $(LIBRARY_DIRS)
 
+$(OBJDIR)/libretro-common/gfx/scaler/scaler_int.o: CFLAGS += -funroll-loops
+
 $(OBJDIR)/%.o: %.c config.h config.mk
 	@mkdir -p $(dir $@)
 	@$(if $(Q), $(shell echo echo CC $<),)

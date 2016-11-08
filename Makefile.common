@@ -241,6 +241,10 @@ OBJ += frontend/frontend.o \
        performance_counters.o \
        verbosity.o
 
+ifeq ($(HAVE_NEON), 1)
+OBJ += libretro-common/gfx/scaler/neon_scaler.o
+endif
+
 ifeq ($(HAVE_LANGEXTRA), 1)
 DEFINES += -DHAVE_LANGEXTRA
 DEFINES += -finput-charset=UTF-8
