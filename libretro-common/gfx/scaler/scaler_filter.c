@@ -1,4 +1,5 @@
 /* Copyright  (C) 2010-2015 The RetroArch team
+ * Copyright  (C) 2016 Fox Cunning
  *
  * ---------------------------------------------------------------------------------------
  * The following license statement only applies to this file (scaler_filter.c).
@@ -74,7 +75,18 @@ static bool gen_filter_point(struct scaler_ctx *ctx)
    gen_filter_point_sub(&ctx->horiz, ctx->out_width, x_pos, x_step);
    gen_filter_point_sub(&ctx->vert, ctx->out_height, y_pos, y_step);
 
+#if defined(__ARM_NEON)
+	if (ctx->in_width == 256 && ctx->in_height == 224 &&
+		ctx->out_width == 720 && ctx->out_height == 480)
+		ctx->scaler_special = neon_256x224_to_720x480;
+	else if (ctx->in_width == 512 && ctx->in_height == 224 &&
+		ctx->out_width == 720 && ctx->out_height == 480)
+		ctx->scaler_special = neon_512x224_to_720x480;
+	else
+		ctx->scaler_special = scaler_argb8888_point_special;	
+#else
    ctx->scaler_special = scaler_argb8888_point_special;
+#endif
 
    return true;
 }

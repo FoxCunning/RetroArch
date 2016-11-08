@@ -37,5 +37,15 @@ void scaler_argb8888_point_special(const struct scaler_ctx *ctx,
       int in_width, int in_height,
       int out_stride, int in_stride);
 
+#ifdef __ARM_NEON
+void neon_256x224_to_720x480(void *unused,
+	void *output, const void *input,
+	int, int, int, int, int, int);
+
+void neon_512x224_to_720x480(void *unused,
+	void *output, const void *input,
+	int, int, int, int, int, int);
+#endif	// __ARM_NEON
+
 #endif
 

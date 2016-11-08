@@ -1,4 +1,5 @@
 /* Copyright  (C) 2010-2015 The RetroArch team
+ * Copyright  (C) 2016 Fox Cunning
  *
  * ---------------------------------------------------------------------------------------
  * The following license statement only applies to this file (pixconv.c).
@@ -35,6 +36,10 @@
 
 #if defined(__SSE2__)
 #include <emmintrin.h>
+#endif
+
+#if defined(__ARM_NEON)
+#include <arm_neon.h>
 #endif
 
 void conv_rgb565_0rgb1555(void *output_, const void *input_,
@@ -205,6 +210,11 @@ void conv_rgb565_argb8888(void *output_, const void *input_,
    const __m128i a          = _mm_set1_epi16(0x00ff);
 
    int max_width            = width - 7;
+#elif defined(__ARM_NEON)
+   const uint16x8_t gmask	= vdupq_n_u16(0x3f);
+   const uint16x8_t bmask	= vdupq_n_u16(0x1f);
+   
+   int max_width			= width - 7;
 #endif
 
    for (h = 0; h < height;
@@ -238,6 +248,34 @@ void conv_rgb565_argb8888(void *output_, const void *input_,
          _mm_storeu_si128((__m128i*)(output + w + 0), res_lo);
          _mm_storeu_si128((__m128i*)(output + w + 4), res_hi);
       }
+#elif defined(__ARM_NEON)
+	  for (; w < max_width; w += 8)
+	  {
+		const uint16x8_t col = vld1q_u16((const uint16_t *)(input + w));
+
+		uint16x8_t in_r = vshrq_n_u16(col, 11);
+		uint16x8_t in_g = vandq_u16(vshrq_n_u16(col, 5), gmask);
+		uint16x8_t in_b = vandq_u16(col, bmask);
+		  	 
+		uint8x8_t out_r = vqmovn_u16(vorrq_s16(vshlq_n_u16(in_r, 3), vshrq_n_u16(in_r, 2)));
+		uint8x8_t out_g = vqmovn_u16(vorrq_s16(vshlq_n_u16(in_g, 2), vshrq_n_u16(in_g, 4)));
+		uint8x8_t out_b = vqmovn_u16(vorrq_s16(vshlq_n_u16(in_b, 3), vshrq_n_u16(in_b, 2)));
+		  	
+		uint8x8_t out_a = vdup_n_u8(0xff);
+	 	  	 
+		uint8x8x2_t int_br = vzip_u8(out_b, out_r);
+		uint8x8x2_t int_ga = vzip_u8(out_g, out_a);
+	 	  	
+		uint8x8x2_t res_0 = vzip_u8(int_br.val[0], int_ga.val[0]);
+		uint8x8x2_t res_1 = vzip_u8(int_br.val[1], int_ga.val[1]);
+	 	  	 
+
+		uint8x16_t res_lo = vcombine_u8(res_0.val[0], res_0.val[1]);
+		uint8x16_t res_hi = vcombine_u8(res_1.val[0], res_1.val[1]);
+
+		vst1q_u8((uint8_t*)(output + w), res_lo);
+		vst1q_u8((uint8_t*)(output + w + 4), res_hi);
+	  }
 #endif
 
       for (; w < width; w++)
