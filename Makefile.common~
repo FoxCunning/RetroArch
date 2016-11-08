@@ -6,10 +6,6 @@ ifeq ($(LOG_FPS),1)
 	DEFINES += -DLOG_FPS
 endif
 
-ifeq ($(PLATFORM),chip)
-	CFLAGS += -march=armv7-a -mtune=cortex-a8
-endif
-
 ifeq ($(HAVE_GL_CONTEXT),)
    HAVE_GL_CONTEXT=0
 

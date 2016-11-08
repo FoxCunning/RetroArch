@@ -1,0 +1,29 @@
+NTC CHIP NOTES
+==============
+This fork is an attempt to otpimise RetroArch for NTC CHIP / PocketCHIP.
+
+
+Pre-requisites
+==============
+sudo apt-get install 
+
+
+Configuration
+=============
+./configure --enable-sdl --disable-sdl2 --enable-floathard --enable-neon --disable-opengl --disable-opengles --disable-vg --disable-fbo --disable-egl --disable-pulse --disable-oss --disable-x11 --disable-wayland --disable-ffmpeg --disable-7zip --disable-libxml2 --disable-freetype --disable-shaderpipeline
+
+
+Build
+=====
+Two extra env variables have been added:
+- LOG_FPS: If set to 1 an "fps.log" file will be created, containing a log of average FPS.
+- PLATFORM: Set it to "chip".
+Example:
+	LOG_FPS=1 PLATFORM=chip make -j 25
+
+
+Cross-compile
+=============
+RetroArch is cross-compile friendly. Just make sure you have the correct env variable, e.g.:
+	export CROSS_COMPILE=arm-linux-gnueabihf-
+	./configure ...

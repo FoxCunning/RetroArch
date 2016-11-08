@@ -60,7 +60,7 @@ endif
 ifeq ($(DEBUG), 1)
    OPTIMIZE_FLAG = -O0 -g
 else
-   OPTIMIZE_FLAG = -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations -ftree-vectorizer-verbose=5 
+   OPTIMIZE_FLAG = -O3 -ffast-math
 endif
 
 ifneq ($(findstring Win32,$(OS)),)
