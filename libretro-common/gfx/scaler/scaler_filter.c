@@ -75,6 +75,10 @@ static bool gen_filter_point(struct scaler_ctx *ctx)
    gen_filter_point_sub(&ctx->horiz, ctx->out_width, x_pos, x_step);
    gen_filter_point_sub(&ctx->vert, ctx->out_height, y_pos, y_step);
 
+	printf("*** Selecting special point scaler for %dx%d -> %dx%d.\n",
+		ctx->in_width, ctx->in_height,
+		ctx->out_width, ctx->out_height);
+		
 #if defined(__ARM_NEON)
 	if (ctx->in_width == 256 && ctx->in_height == 224 &&
 		ctx->out_width == 720 && ctx->out_height == 480)
