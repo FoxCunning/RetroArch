@@ -65,6 +65,10 @@ typedef struct sdl_video
    sdl_menu_frame_t menu;
 } sdl_video_t;
 
+#ifdef LOG_FPS
+	SDL_RWops *fpslog;
+#endif
+
 static void sdl_gfx_free(void *data)
 {
    sdl_video_t *vid = (sdl_video_t*)data;
@@ -81,6 +85,10 @@ static void sdl_gfx_free(void *data)
 
    scaler_ctx_gen_reset(&vid->scaler);
    scaler_ctx_gen_reset(&vid->menu.scaler);
+
+#ifdef LOG_FPS
+	SDL_RWclose(fpslog);
+#endif
 
    free(vid);
 }
@@ -306,6 +314,10 @@ static void *sdl_gfx_init(const video_info_t *video, const input_driver_t **inpu
       goto error;
    }
 
+#ifdef LOG_FPS
+	fpslog = SDL_RWFromFile("fps.log", "w+");
+#endif
+
    return vid;
 
 error:
@@ -367,8 +379,17 @@ static bool sdl_gfx_frame(void *data, const void *frame, unsigned width,
    if (SDL_MUSTLOCK(vid->screen))
       SDL_UnlockSurface(vid->screen);
 
+#ifdef LOG_FPS
+	char buf_fps[128] = {0};
+	if (video_monitor_get_fps(buf, sizeof(buf), buf_fps, sizeof(buf_fps)))
+	  {
+	  	strcat(buf_fps, "\n");
+	  	SDL_RWwrite(fpslog, buf_fps, strlen(buf_fps), 1);
+	  }
+#else
    if (video_monitor_get_fps(buf, sizeof(buf), NULL, 0))
       SDL_WM_SetCaption(buf, NULL);
+#endif
 
    SDL_Flip(vid->screen);
 
